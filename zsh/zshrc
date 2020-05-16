@@ -1,0 +1,23 @@
+export PATH="/usr/local/opt/python@3.8/bin:$PATH"
+
+# Some tips from c't
+autoload -Uz promptinit
+promptinit
+prompt adam2
+## Auto complete
+autoload -Uz compinit
+compinit
+
+## Auto Spell Correct
+setopt kshoptionprint
+setopt
+
+HISTSIZE=2000
+SAVEHIST=2000
+HISTFILE=~/.zsh_history
+setopt histignorespace
+setopt hist_ignore_all_dups
+setopt append_history
+setopt share_history
+
+
