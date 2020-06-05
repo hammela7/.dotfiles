@@ -1,4 +1,6 @@
 export PATH="/usr/local/opt/python@3.8/bin:$PATH"
+source /usr/local/Cellar/antigen/2.2.3/share/antigen/antigen.zsh
+
 
 # Some tips from c't
 autoload -Uz promptinit
@@ -25,3 +27,6 @@ source ~/antigen.zsh
 antigen bundle git
 antigen bundle zsh-users/zsh-autosuggestions
 antigen apply
+
+# Aliases
+alias ll='ls -larth'
