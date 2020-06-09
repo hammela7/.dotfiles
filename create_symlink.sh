@@ -1,5 +1,4 @@
 #!/bin/zsh
-sudo apt update && sudo apt upgrade -y && sudo apt install zsh -y
 if test -f ~/.vimrc; then
     echo "Backing up .vimrc to .dotfiles/backups/"
     mv ~/.vimrc ~/.dotfiles/backups/
