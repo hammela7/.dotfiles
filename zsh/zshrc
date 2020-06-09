@@ -11,8 +11,7 @@ autoload -Uz compinit
 compinit
 
 ## Auto Spell Correct
-setopt kshoptionprint
-setopt
+setopt correct
 
 HISTSIZE=2000
 SAVEHIST=2000
