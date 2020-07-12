@@ -1,5 +1,5 @@
 export PATH="/usr/local/opt/python@3.8/bin:$PATH"
-source /usr/local/Cellar/antigen/2.2.3/share/antigen/antigen.zsh
+#source /usr/local/Cellar/antigen/2.2.3/share/antigen/antigen.zsh
 
 
 # Some tips from c't
