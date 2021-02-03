@@ -28,4 +28,9 @@ antigen bundle zsh-users/zsh-autosuggestions
 antigen apply
 
 # Aliases
-alias ll='ls -larth'
+alias ll='ls -lah'
+# Tail last 50 lines of docker logs
+alias dtail='docker logs -tf --tail='50' '
+
+# Shorthand, customise docker-compose.yaml location as needed
+alias dcp='docker-compose -f ~/docker-compose.yaml '
