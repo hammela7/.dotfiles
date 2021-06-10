@@ -16,3 +16,4 @@ fi
 ln -s ~/.dotfiles/zsh/zshrc ~/.zshrc  
 ls -larth ~/.vim ~/.vimrc ~/.zshrc
 
+curl -L git.io/antigen > ~/antigen.zsh
