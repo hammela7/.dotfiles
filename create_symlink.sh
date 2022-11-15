@@ -14,6 +14,9 @@ if test -f ~/.zshrc; then
     mv ~/.zshrc ~/.dotfiles/backups
 fi
 ln -s ~/.dotfiles/zsh/zshrc ~/.zshrc  
+
+ln -s ~/.dotfiles/.tmux.conf ~/.tmux.conf
+
 ls -larth ~/.vim ~/.vimrc ~/.zshrc
 
 curl -L git.io/antigen > ~/antigen.zsh
