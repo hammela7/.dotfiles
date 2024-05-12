@@ -1,8 +1,10 @@
 if type brew &>/dev/null
 then
+  echo "Brew"
   source $(brew --prefix)/share/antigen/antigen.zsh
   export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
 else
+  echo "No brew"
   source ~/.antigen.zsh
 fi
 
@@ -25,9 +27,6 @@ setopt histignorespace
 setopt hist_ignore_all_dups
 setopt append_history
 setopt share_history
-
-# Antigen plugins
-source ~/antigen.zsh
 
 # Load the oh-my-zsh's library.
 antigen use oh-my-zsh
