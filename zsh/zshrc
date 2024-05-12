@@ -1,10 +1,15 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 if type brew &>/dev/null
 then
-  echo "Brew"
   source $(brew --prefix)/share/antigen/antigen.zsh
   export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
 else
-  echo "No brew"
   source ~/antigen.zsh
 fi
 
@@ -39,7 +44,8 @@ antigen bundle colored-man-pages
 antigen bundle iterm2
 
 # Load the theme.
-antigen theme robbyrussell
+#antigen theme robbyrussell
+antigen theme romkatv/powerlevel10k
 
 if type brew &>/dev/null
 then
@@ -55,3 +61,6 @@ alias dtail='docker logs -tf --tail='50' '
 
 # Shorthand, customise docker-compose.yaml location as needed
 alias dcp='docker-compose -f ~/docker-compose.yaml '
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
