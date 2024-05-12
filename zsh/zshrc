@@ -38,10 +38,14 @@ antigen bundle zsh-users/zsh-autosuggestions
 antigen bundle zsh-users/zsh-syntax-highlighting
 antigen bundle colored-man-pages
 antigen bundle iterm2
-antigen bundle thefuck
 
 # Load the theme.
 antigen theme robbyrussell
+
+if type brew &>/dev/null
+then
+  antigen bundle thefuck
+fi
 
 antigen apply
 
