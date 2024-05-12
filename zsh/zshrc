@@ -1,6 +1,10 @@
-export PATH="/usr/local/opt/python@3.8/bin:$PATH"
-#source /usr/local/Cellar/antigen/2.2.3/share/antigen/antigen.zsh
-
+if type brew &>/dev/null
+then
+  source $(brew --prefix)/share/antigen/antigen.zsh
+  export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
+else
+  source ~/.antigen.zsh
+fi
 
 # Some tips from c't
 autoload -Uz promptinit
@@ -13,8 +17,9 @@ compinit
 ## Auto Spell Correct
 setopt correct
 
-HISTSIZE=2000
-SAVEHIST=2000
+HISTSIZE=99999
+SAVEHIST=99999
+export HISTTIMEFORMAT="%y-%m-%d %T "
 HISTFILE=~/.zsh_history
 setopt histignorespace
 setopt hist_ignore_all_dups
@@ -23,8 +28,21 @@ setopt share_history
 
 # Antigen plugins
 source ~/antigen.zsh
+
+# Load the oh-my-zsh's library.
+antigen use oh-my-zsh
+
+# More plugins
 antigen bundle git
 antigen bundle zsh-users/zsh-autosuggestions
+antigen bundle zsh-users/zsh-syntax-highlighting
+antigen bundle colored-man-pages
+antigen bundle iterm2
+antigen bundle thefuck
+
+# Load the theme.
+antigen theme robbyrussell
+
 antigen apply
 
 # Aliases
