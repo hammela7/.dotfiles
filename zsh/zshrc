@@ -5,7 +5,7 @@ then
   export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
 else
   echo "No brew"
-  source ~/.antigen.zsh
+  source ~/antigen.zsh
 fi
 
 # Some tips from c't
