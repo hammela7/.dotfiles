@@ -5,18 +5,18 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+# Dedupe $PATH, keeping the first occurrence. Set before anything appends.
+typeset -U path
+
+# Homebrew ships antigen; everywhere else the Ansible dotfiles role drops a
+# copy in ~/antigen.zsh.
 if type brew &>/dev/null
 then
   source $(brew --prefix)/share/antigen/antigen.zsh
-  export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
 else
   source ~/antigen.zsh
 fi
 
-# Some tips from c't
-autoload -Uz promptinit
-promptinit
-prompt adam2
 ## Auto complete
 autoload -Uz compinit
 compinit
@@ -24,43 +24,70 @@ compinit
 ## Auto Spell Correct
 setopt correct
 
+# History. These are zsh shell parameters, not environment variables, so they
+# are deliberately not exported. share_history already implies append_history.
+HISTFILE=~/.zsh_history
 HISTSIZE=99999
 SAVEHIST=99999
-export HISTTIMEFORMAT="%y-%m-%d %T "
-HISTFILE=~/.zsh_history
-setopt histignorespace
+setopt extended_history         # record timestamps
+setopt hist_expire_dups_first   # trim duplicates before unique entries
 setopt hist_ignore_all_dups
-setopt append_history
+setopt hist_ignore_space
 setopt share_history
 
 # Load the oh-my-zsh's library.
 antigen use oh-my-zsh
 
-# More plugins
+# Plugins
 antigen bundle git
+antigen bundle colored-man-pages
 antigen bundle zsh-users/zsh-autosuggestions
 antigen bundle zsh-users/zsh-syntax-highlighting
-antigen bundle colored-man-pages
-antigen bundle iterm2
 
 # Load the theme.
-#antigen theme robbyrussell
 antigen theme romkatv/powerlevel10k
 
-if type brew &>/dev/null
-then
-  antigen bundle thefuck
-fi
+# ── OS-specific ──────────────────────────────────────────────────────────────
+# Sourced before `antigen apply` so it can still register bundles.
+case "$OSTYPE" in
+  darwin*)
+    antigen bundle thefuck
+    antigen bundle iterm2
+    path=(/opt/homebrew/opt/gnu-sed/libexec/gnubin $path)
+    [[ -d ~/.lmstudio/bin ]] && path+=(~/.lmstudio/bin)
+    alias tailscale='/Applications/Tailscale.app/Contents/MacOS/Tailscale'
+    ;;
+  linux*)
+    # sanoid/syncoid and friends install here, and Debian only puts
+    # /usr/local/sbin on root's PATH.
+    [[ -d /usr/local/sbin ]] && path=(/usr/local/sbin $path)
+    ;;
+esac
 
 antigen apply
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# pipx and friends; portable, so guarded by existence rather than by OS.
+[[ -d ~/.local/bin ]] && path+=(~/.local/bin)
 
 # Aliases
 alias ll='ls -lah'
 # Tail last 50 lines of docker logs
-alias dtail='docker logs -tf --tail='50' '
+alias dtail='docker logs -tf --tail=50 '
 
 # Shorthand, customise docker-compose.yaml location as needed
 alias dcp='docker-compose -f ~/docker-compose.yaml '
+# Which compose file is each running container from?
+alias dcpls='docker ps -q | xargs -n 1 docker inspect | grep "com.docker.compose.project.config_files"'
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+alias venv='python3 -m venv .venv && source .venv/bin/activate && python3 -m pip install --upgrade pip &>/dev/null'
+
+# ── Host-specific overrides ──────────────────────────────────────────────────
+# Never tracked in git. This is the escape hatch for one-off machine-local
+# tweaks: editing ~/.zshrc.local instead of this file is what stops the next
+# Ansible run failing its `git pull` with "Local modifications exist".
+# Antigen bundles cannot go here (antigen apply has already run) — put those
+# in the OS block above.
+[[ -r ~/.zshrc.local ]] && source ~/.zshrc.local
