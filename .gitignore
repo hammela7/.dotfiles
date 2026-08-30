@@ -1,3 +1,9 @@
 .DS_Store
 backups/
 
+# ~/.vim is a symlink INTO this repo, so anything vim writes to its runtime
+# directory lands in the working tree and makes the clone dirty -- which blocks
+# the Ansible dotfiles role's `git pull` with "Local modifications exist".
+# netrw writes its directory history here just from browsing a folder.
+vim/.netrwhist
+vim/.netrwbook
