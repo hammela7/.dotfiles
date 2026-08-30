@@ -90,4 +90,11 @@ alias venv='python3 -m venv .venv && source .venv/bin/activate && python3 -m pip
 # Ansible run failing its `git pull` with "Local modifications exist".
 # Antigen bundles cannot go here (antigen apply has already run) — put those
 # in the OS block above.
-[[ -r ~/.zshrc.local ]] && source ~/.zshrc.local
+#
+# Deliberately an if-block, not `[[ -r ... ]] && source ...`: this is the last
+# statement in the file, so a false `&&` would leave $? = 1 and p10k's status
+# segment would render "1 err" on the first prompt of every shell that has no
+# ~/.zshrc.local. An if with no else returns 0.
+if [[ -r ~/.zshrc.local ]]; then
+  source ~/.zshrc.local
+fi
