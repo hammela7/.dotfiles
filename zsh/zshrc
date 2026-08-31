@@ -1,20 +1,36 @@
+# Third-party shell plugins are opt-out. A host that creates ~/.zsh-noplugins
+# loads none of antigen, oh-my-zsh, powerlevel10k or the zsh-users bundles, and
+# falls back to a prompt that ships with zsh itself. Intended for hosts where
+# this shell can reach everything and the only thing plugins buy is a nicer
+# prompt — lorien is the hypervisor, and its aidan is in both sudo and docker.
+# Everything else in this file still applies in that mode.
+if [[ -e ~/.zsh-noplugins ]]; then
+  _zsh_plugins=0
+else
+  _zsh_plugins=1
+fi
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+# Skipped without plugins, or a stale cache from a previous p10k install would
+# paint an instant prompt for a theme that never loads.
+if (( _zsh_plugins )) && [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
 # Dedupe $PATH, keeping the first occurrence. Set before anything appends.
 typeset -U path
 
-# Homebrew ships antigen; everywhere else the Ansible dotfiles role drops a
-# copy in ~/antigen.zsh.
-if type brew &>/dev/null
-then
-  source $(brew --prefix)/share/antigen/antigen.zsh
-else
-  source ~/antigen.zsh
+if (( _zsh_plugins )); then
+  # Homebrew ships antigen; everywhere else the Ansible dotfiles role drops a
+  # copy in ~/antigen.zsh.
+  if type brew &>/dev/null
+  then
+    source $(brew --prefix)/share/antigen/antigen.zsh
+  else
+    source ~/antigen.zsh
+  fi
 fi
 
 ## Auto complete
@@ -25,7 +41,7 @@ compinit
 setopt correct
 
 # History. These are zsh shell parameters, not environment variables, so they
-# are deliberately not exported. share_history already implies append_history.
+# are deliberately not exported. append_history is on by default in zsh.
 HISTFILE=~/.zsh_history
 HISTSIZE=99999
 SAVEHIST=99999
@@ -35,24 +51,47 @@ setopt hist_ignore_all_dups
 setopt hist_ignore_space
 setopt share_history
 
-# Load the oh-my-zsh's library.
-antigen use oh-my-zsh
+if (( _zsh_plugins )); then
+  # Load the oh-my-zsh's library.
+  antigen use oh-my-zsh
 
-# Plugins
-antigen bundle git
-antigen bundle colored-man-pages
-antigen bundle zsh-users/zsh-autosuggestions
-antigen bundle zsh-users/zsh-syntax-highlighting
+  # Plugins
+  antigen bundle git
+  antigen bundle colored-man-pages
+  antigen bundle zsh-users/zsh-autosuggestions
+  antigen bundle zsh-users/zsh-syntax-highlighting
 
-# Load the theme.
-antigen theme romkatv/powerlevel10k
+  # Load the theme.
+  antigen theme romkatv/powerlevel10k
+
+  # OS-specific bundles, registered before `antigen apply`.
+  case "$OSTYPE" in
+    darwin*)
+      antigen bundle thefuck
+      antigen bundle iterm2
+      ;;
+  esac
+
+  antigen apply
+
+  # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+  [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+else
+  # zsh's own prompt framework — bundled with the shell, no third-party code.
+  # adam2 is what lorien ran before it was brought onto the shared zshrc.
+  # (It reads an intentionally-unset $_empty_zz to build its padding, which
+  # errors only if something leaks `setopt nounset` into the shell.)
+  autoload -Uz promptinit
+  promptinit
+  prompt adam2
+fi
+
+unset _zsh_plugins
 
 # ── OS-specific ──────────────────────────────────────────────────────────────
-# Sourced before `antigen apply` so it can still register bundles.
+# Paths and aliases, so this applies with or without plugins.
 case "$OSTYPE" in
   darwin*)
-    antigen bundle thefuck
-    antigen bundle iterm2
     path=(/opt/homebrew/opt/gnu-sed/libexec/gnubin $path)
     [[ -d ~/.lmstudio/bin ]] && path+=(~/.lmstudio/bin)
     alias tailscale='/Applications/Tailscale.app/Contents/MacOS/Tailscale'
@@ -63,11 +102,6 @@ case "$OSTYPE" in
     [[ -d /usr/local/sbin ]] && path=(/usr/local/sbin $path)
     ;;
 esac
-
-antigen apply
-
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # pipx and friends; portable, so guarded by existence rather than by OS.
 [[ -d ~/.local/bin ]] && path+=(~/.local/bin)
